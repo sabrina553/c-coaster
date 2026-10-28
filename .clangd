@@ -1,0 +1,5 @@
+# IDF builds with Xtensa GCC; clangd doesn't know its -m/-f flags, so drop them.
+# compile_commands.json comes from `idf.py build` in build/.
+CompileFlags:
+  CompilationDatabase: build
+  Remove: [-f*, -m*]

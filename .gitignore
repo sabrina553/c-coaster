@@ -1,0 +1,7 @@
+build/
+managed_components/
+sdkconfig.old
+.cache/
+# Secrets (Wi-Fi, ThingSpeak) go in a local config, never committed
+secrets.h
+.env
