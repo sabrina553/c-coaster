@@ -141,7 +141,7 @@ void app_main(void)
     for (;;) {
         uint16_t raw = mcp3008_read(0);
         ESP_LOGI(TAG, "FSR raw: %u", raw);
-        vTaskDelay(pdMS_TO_TICKS(200));
+        vTaskDelay(pdMS_TO_TICKS(100));
         if (raw > 10) {
             voltages_array[i++] = raw;
         } else {
