@@ -126,29 +126,54 @@ static uint16_t mean_u16(const uint16_t *v, size_t n)
     return (uint16_t)((sum + n / 2) / n); // + n/2 rounds to nearest
 }
 
+static uint16_t voltageToMass(uint16_t voltage)
+{
+    const uint16_t masses[19] = {1000, 950, 900, 850, 800, 750, 700, 650, 600, 550,
+                                 500,  450, 400, 350, 300, 250, 200, 150, 0};
+    //    const uint16_t voltages[19] = [
+    //    968.9, 967.3, 965.0, 959.7, 953.5, 950.6, 937.6, 933.5, 923.5, 889.3, 868.6, 755.4, 559.3,
+    //    133.8, 118.6, 30.6, 23.4, 16.9, 0
+    //    ]
+    const uint16_t voltages[19] = {968, 967, 965, 959, 953, 950, 937, 933, 923, 889,
+                                   868, 755, 559, 133, 118, 30,  23,  16,  0};
+    const size_t n = sizeof voltages / sizeof *voltages;
+    if (voltage >= voltages[0]) {
+        return masses[0];
+    }
+    // walk up from - to the first point above the reading v[i] <= voltage < v[i-1]
+    for (int i = n - 1; i != 0; i--) {
+        if (voltage < voltages[i - 1]) {
+            uint32_t vDiff = voltages[i - 1] - voltages[i]; // > 0: table is scrtictly descending
+            uint32_t mDiff = masses[i - 1] - masses[i];
+            return masses[i] + (uint32_t)(voltage - voltages[i]) * mDiff / vDiff;
+        }
+    }
+    return 0;
+}
 #define N_SAMPLES 1000
 
 void app_main(void)
 {
     mcp3008_init();
 
-    // static keeps these 6 kB off the main task's ~3.5 kB stack.
+    // static keeps these 6 kB off the main task's ~3 kB stack.
     static uint16_t voltages_array[N_SAMPLES];
     static uint16_t scratch[N_SAMPLES];
     static uint16_t stable[N_SAMPLES];
+    static uint16_t mass;
     size_t i = 0;
 
     for (;;) {
         uint16_t raw = mcp3008_read(0);
-        ESP_LOGI(TAG, "FSR raw: %u", raw);
-        vTaskDelay(pdMS_TO_TICKS(100));
+        // ESP_LOGI(TAG, "FSR raw: %u", raw);
+        vTaskDelay(pdMS_TO_TICKS(10));
         if (raw > 10) {
             voltages_array[i++] = raw;
         } else {
             i = 0;
         }
 
-        ESP_LOGI(TAG, "%zu - ", i);
+        // ESP_LOGI(TAG, "%zu - ", i);
         if (i == N_SAMPLES) {
             size_t n_stable = stable_counts(voltages_array, N_SAMPLES, 40, 3, scratch, stable);
             if (n_stable == 0) {
@@ -156,6 +181,10 @@ void app_main(void)
             } else {
                 uint16_t avg = mean_u16(stable, n_stable);
                 ESP_LOGI(TAG, "kept %zu, avg %u counts", n_stable, avg);
+                // spline
+                mass = voltageToMass(avg);
+
+                ESP_LOGI(TAG, "Recorded mass: %u", mass);
             }
             i = 0; // the next batch overwrites the buffer, so no need to clear it
         }
