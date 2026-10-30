@@ -144,6 +144,8 @@ void app_main(void)
         vTaskDelay(pdMS_TO_TICKS(200));
         if (raw > 10) {
             voltages_array[i++] = raw;
+        } else {
+            i = 0;
         }
 
         ESP_LOGI(TAG, "%u - ", i);
