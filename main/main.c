@@ -148,7 +148,7 @@ void app_main(void)
             i = 0;
         }
 
-        ESP_LOGI(TAG, "%u - ", i);
+        ESP_LOGI(TAG, "%zu - ", i);
         if (i == N_SAMPLES) {
             size_t n_stable = stable_counts(voltages_array, N_SAMPLES, 40, 3, scratch, stable);
             if (n_stable == 0) {
