@@ -6,3 +6,4 @@ sdkconfig.old
 # Secrets (Wi-Fi, ThingSpeak) go in a local config, never committed
 secrets.h
 .env
+build-host/
