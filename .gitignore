@@ -7,3 +7,4 @@ sdkconfig.old
 secrets.h
 sdkconfig.secrets
 .env
+build-host/
