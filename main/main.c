@@ -79,11 +79,10 @@ static void queue_reading(const reading_t *r)
 }
 
 // Turns a full sample buffer into a recorded reading; false if no stable readings.
-static bool record(const uint16_t *samples, uint16_t *scratch, uint16_t *stable,
-                   consumption_t *c)
+static bool record(const uint16_t *samples, uint16_t *scratch, uint16_t *stable, consumption_t *c)
 {
-    size_t n_stable = stable_counts(samples, N_SAMPLES, STABLE_TAIL_PCT, STABLE_TOL_PCT, scratch,
-                                  stable);
+    size_t n_stable =
+        stable_counts(samples, N_SAMPLES, STABLE_TAIL_PCT, STABLE_TOL_PCT, scratch, stable);
     if (n_stable == 0) {
         ESP_LOGW(TAG, "no stable readings in batch");
         return false;

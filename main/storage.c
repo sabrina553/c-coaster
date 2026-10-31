@@ -36,8 +36,8 @@ bool storage_load(consumption_t *c)
     }
     tmp.has_last = has_last;
     *c = tmp;
-    ESP_LOGI(TAG, "restored last %u g, total %lu g, day %ld", c->last_mass,
-             (unsigned long)c->total, (long)c->day);
+    ESP_LOGI(TAG, "restored last %u g, total %lu g, day %ld", c->last_mass, (unsigned long)c->total,
+             (long)c->day);
     return true;
 }
 
