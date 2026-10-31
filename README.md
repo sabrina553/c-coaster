@@ -66,26 +66,26 @@ Small gains subtract on purpose, so sensor creep cancels out over time.
 ```mermaid
 sequenceDiagram
     participant Cup
-    participant Loop as Sampling loop
+    participant App as Sampling loop
     participant Cons as consumption
     participant NVS as storage (NVS)
     participant Q as Queue
     participant Net as Network task
     participant TS as ThingSpeak
 
-    Cup->>Loop: placed
+    Cup->>App: placed
     loop every 10 ms, 1000 times
-        Loop->>Loop: mcp3008_read(0)
+        App->>App: mcp3008_read(0)
     end
-    Loop->>Loop: stable_counts, mean, mass
-    Loop->>Cons: consumption_update(mass, day)
-    Loop->>NVS: storage_save
-    Loop->>Q: xQueueSend(reading)
+    App->>App: stable_counts, mean, mass
+    App->>Cons: consumption_update(mass, day)
+    App->>NVS: storage_save
+    App->>Q: xQueueSend(reading)
     Q->>Net: xQueueReceive
     Net->>TS: HTTPS POST /update
     TS-->>Net: 200
     Net->>Net: wait 15 s (rate limit)
-    Cup->>Loop: lifted
+    Cup->>App: lifted
 ```
 
 ### Modules
