@@ -1,6 +1,7 @@
 // first line
 #include "mcp3008.h"
 #include "driver/gpio.h"
+#include <assert.h>
 
 // https://docs.arduino.cc/hardware/nano-esp32/
 // GPIO48 is also the onboard LED (D13), so it flickers while clocking.
@@ -55,6 +56,9 @@ static void send_bits(uint8_t value, int n)
 // 130 ksps is recommended for VDD >= 3.3V
 uint16_t mcp3008_read(uint8_t channel)
 {
+    // Only D2..D0 hold the channel; 8+ would corrupt the start/SGL bits (datasheet table 5-2).
+    // A bad channel is a programming error, so fail loudly rather than mask it.
+    assert(channel < 8);
     uint16_t result = 0;
     gpio_set_level(CS, 0);
     send_bits(0x18 | channel, 5);
