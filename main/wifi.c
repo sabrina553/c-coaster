@@ -5,7 +5,6 @@
 #include "esp_wifi.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
-#include "nvs_flash.h"
 #include <string.h>
 
 // Based on the IDF station example:
@@ -31,14 +30,6 @@ static void on_event(void *arg, esp_event_base_t base, int32_t id, void *data)
 
 void wifi_init(void)
 {
-    // Wi-Fi stores calibration data in NVS; erase if the partition layout changed.
-    esp_err_t err = nvs_flash_init();
-    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        err = nvs_flash_init();
-    }
-    ESP_ERROR_CHECK(err);
-
     s_events = xEventGroupCreate();
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
