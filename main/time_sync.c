@@ -36,16 +36,9 @@ bool time_is_synced(void)
     return t.tm_year + 1900 >= MIN_VALID_YEAR;
 }
 
-bool time_is_new_day(time_t now)
+int32_t time_day_key(time_t now)
 {
-    // -1 means "no day seen yet", so the first call reports a new day.
-    static int last_year = -1, last_yday = -1;
     struct tm t;
     localtime_r(&now, &t);
-    if (t.tm_year == last_year && t.tm_yday == last_yday) {
-        return false;
-    }
-    last_year = t.tm_year;
-    last_yday = t.tm_yday;
-    return true;
+    return (t.tm_year + 1900) * 10000 + (t.tm_mon + 1) * 100 + t.tm_mday;
 }

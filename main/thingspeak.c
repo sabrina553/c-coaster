@@ -4,6 +4,7 @@
 #include "esp_log.h"
 #include "esp_timer.h"
 #include <stdio.h>
+#include <time.h>
 
 // https://www.mathworks.com/help/thingspeak/writedata.html
 static const char *TAG = "thingspeak";
@@ -11,7 +12,7 @@ static const char *TAG = "thingspeak";
 // Free tier accepts one update per 15 s; anything faster is silently dropped.
 #define MIN_INTERVAL_US (15 * 1000000LL)
 
-bool thingspeak_send(uint16_t mass, uint32_t daily_total, time_t timestamp)
+bool thingspeak_send(uint16_t counts, uint16_t mass, uint32_t daily_total, time_t timestamp)
 {
     static int64_t last_us = -MIN_INTERVAL_US;
     int64_t now_us = esp_timer_get_time();
@@ -20,15 +21,19 @@ bool thingspeak_send(uint16_t mass, uint32_t daily_total, time_t timestamp)
         return false;
     }
 
-    // created_at keeps the reading's own time if the send is delayed.
-    char iso[sizeof "2026-01-01T00:00:00Z"];
-    struct tm t;
-    gmtime_r(&timestamp, &t);
-    strftime(iso, sizeof iso, "%Y-%m-%dT%H:%M:%SZ", &t);
-
-    char body[160];
-    int len = snprintf(body, sizeof body, "api_key=%s&field1=%u&field2=%lu&created_at=%s",
-                       CONFIG_COASTER_THINGSPEAK_API_KEY, mass, (unsigned long)daily_total, iso);
+    char body[192];
+    int len = snprintf(body, sizeof body, "api_key=%s&field1=%u&field2=%u&field3=%lu",
+                       CONFIG_COASTER_THINGSPEAK_API_KEY, counts, mass,
+                       (unsigned long)daily_total);
+    if (timestamp != 0 && len > 0 && (size_t)len < sizeof body) {
+        // created_at keeps the reading's own time if the send is delayed.
+        struct tm t;
+        gmtime_r(&timestamp, &t);
+        size_t added = strftime(body + len, sizeof body - (size_t)len,
+                                "&created_at=%Y-%m-%dT%H:%M:%SZ", &t);
+        // Unlike snprintf, strftime returns 0 when it doesn't fit.
+        len = added ? len + (int)added : (int)sizeof body;
+    }
     // snprintf returns the length it *wanted*; >= sizeof body means it was cut off.
     if (len < 0 || (size_t)len >= sizeof body) {
         ESP_LOGE(TAG, "request body truncated, not sending");
@@ -55,6 +60,6 @@ bool thingspeak_send(uint16_t mass, uint32_t daily_total, time_t timestamp)
         return false;
     }
     last_us = now_us;
-    ESP_LOGI(TAG, "sent mass %u, total %lu", mass, (unsigned long)daily_total);
+    ESP_LOGI(TAG, "sent counts %u, mass %u, total %lu", counts, mass, (unsigned long)daily_total);
     return true;
 }
