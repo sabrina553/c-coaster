@@ -7,5 +7,5 @@
 // Returns true once the clock has synced, false on timeout (SNTP keeps trying).
 bool time_sync_init(uint32_t timeout_ms);
 bool time_is_synced(void);
-// True the first time it sees a local date different from the last call's.
-bool time_is_new_day(time_t now);
+// Local date as YYYYMMDD (e.g. 20261031), the day key consumption_update() takes.
+int32_t time_day_key(time_t now);
