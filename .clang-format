@@ -1,0 +1,9 @@
+# Pinned so clangd stops falling back to its default (2-space LLVM).
+# Matches the original code: 4-space indent, function braces on their own line.
+# Options: https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+BasedOnStyle: LLVM
+IndentWidth: 4
+BreakBeforeBraces: Linux
+ColumnLimit: 100
+# Keep include order as written; reordering can change macro/header behaviour in C.
+SortIncludes: Never

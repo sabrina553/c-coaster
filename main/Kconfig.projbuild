@@ -1,0 +1,17 @@
+# Shows up under "c-coaster" in idf.py menuconfig. Real values belong in the
+# git-ignored sdkconfig.secrets (see sdkconfig.secrets.example), never here.
+menu "c-coaster"
+
+    config COASTER_WIFI_SSID
+        string "Wi-Fi SSID"
+        default ""
+
+    config COASTER_WIFI_PASSWORD
+        string "Wi-Fi password"
+        default ""
+
+    config COASTER_THINGSPEAK_API_KEY
+        string "ThingSpeak Write API key"
+        default ""
+
+endmenu

@@ -1,0 +1,12 @@
+# Editor indent to match .clang-format, so new lines start where the formatter puts them.
+# https://editorconfig.org
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{md,yml,yaml}]
+indent_size = 2
