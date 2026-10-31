@@ -1,4 +1,3 @@
-// first line
 #include "mcp3008.h"
 #include "driver/gpio.h"
 #include <assert.h>
