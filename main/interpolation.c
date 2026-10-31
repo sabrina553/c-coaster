@@ -10,7 +10,7 @@ uint16_t voltageToMass(uint16_t voltage)
     //    968.9, 967.3, 965.0, 959.7, 953.5, 950.6, 937.6, 933.5, 923.5, 889.3, 868.6, 755.4, 559.3,
     //    133.8, 118.6, 30.6, 23.4, 16.9, 0
     //    ]
-    const uint16_t voltages[19] = {968, 967, 965, 959, 953, 950, 937, 933, 923, 889,
+    static const uint16_t voltages[19] = {968, 967, 965, 959, 953, 950, 937, 933, 923, 889,
                                    868, 755, 559, 133, 118, 30,  23,  16,  0};
     const size_t n = sizeof voltages / sizeof *voltages;
     if (voltage >= voltages[0]) {
