@@ -50,7 +50,7 @@ void wifi_init(void)
 
 bool wifi_wait_connected(uint32_t timeout_ms)
 {
-    EventBits_t bits = xEventGroupWaitBits(s_events, CONNECTED_BIT, pdFALSE, pdTRUE,
-                                           pdMS_TO_TICKS(timeout_ms));
+    EventBits_t bits =
+        xEventGroupWaitBits(s_events, CONNECTED_BIT, pdFALSE, pdTRUE, pdMS_TO_TICKS(timeout_ms));
     return bits & CONNECTED_BIT;
 }
