@@ -1,4 +1,5 @@
 #include "interpolation.h"
+#include <stddef.h>
 
 uint16_t voltageToMass(uint16_t voltage)
 {
@@ -21,7 +22,8 @@ uint16_t voltageToMass(uint16_t voltage)
         if (voltage < voltages[i - 1]) {
             uint32_t vDiff = voltages[i - 1] - voltages[i]; // > 0: table is strictly descending
             uint32_t mDiff = masses[i - 1] - masses[i];
-            return masses[i] + (uint32_t)(voltage - voltages[i]) * mDiff / vDiff;
+            // Fits uint16_t: the result lies between masses[i] and masses[i - 1].
+            return (uint16_t)(masses[i] + (uint32_t)(voltage - voltages[i]) * mDiff / vDiff);
         }
     }
     return 0;
