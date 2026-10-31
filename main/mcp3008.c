@@ -1,5 +1,14 @@
 // first line
 #include "mcp3008.h"
+#include "driver/gpio.h"
+
+// https://docs.arduino.cc/hardware/nano-esp32/
+// GPIO48 is also the onboard LED (D13), so it flickers while clocking.
+#define CLK GPIO_NUM_48
+#define CS GPIO_NUM_21
+// Named from the ESP32's side: MOSI goes to the MCP3008's DIN, MISO from DOUT.
+#define MOSI GPIO_NUM_38
+#define MISO GPIO_NUM_47
 
 void mcp3008_init(void)
 {
