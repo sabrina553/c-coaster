@@ -29,6 +29,11 @@ bool thingspeak_send(uint16_t mass, uint32_t daily_total, time_t timestamp)
     char body[160];
     int len = snprintf(body, sizeof body, "api_key=%s&field1=%u&field2=%lu&created_at=%s",
                        CONFIG_COASTER_THINGSPEAK_API_KEY, mass, (unsigned long)daily_total, iso);
+    // snprintf returns the length it *wanted*; >= sizeof body means it was cut off.
+    if (len < 0 || (size_t)len >= sizeof body) {
+        ESP_LOGE(TAG, "request body truncated, not sending");
+        return false;
+    }
 
     esp_http_client_config_t cfg = {
         .url = URL,
