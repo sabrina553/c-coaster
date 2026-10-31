@@ -11,6 +11,93 @@ A smart coaster that tracks how much you drink. It's [SmartCoaster](https://gith
 ## Hardware
 FSR + 10 kΩ divider into an MCP3008 (powered at **3.3 V**, the ESP32 is not 5 V tolerant), bit-banged SPI; six status LEDs (not wired up in this version yet).
 
+## How it works
+
+### Hardware
+```mermaid
+flowchart LR
+    FSR["FSR<br/>(force sensor)"] --> DIV["10 kΩ divider"]
+    DIV -->|"analogue, CH0"| ADC["MCP3008<br/>10-bit ADC, 3.3 V"]
+    ADC <-->|"bit-banged SPI<br/>CLK 48 · CS 21<br/>MOSI 38 · MISO 47"| MCU["Arduino Nano ESP32<br/>(ESP32-S3)"]
+    MCU -->|"Wi-Fi, HTTPS"| TS[("ThingSpeak")]
+    NTP["pool.ntp.org"] -->|SNTP| MCU
+    MCU --- NVS[("NVS flash")]
+```
+
+### Coaster states
+One reading per placement: sample until a stable mass is recorded, then wait for a lift.
+```mermaid
+stateDiagram-v2
+    [*] --> EMPTY
+    EMPTY --> SAMPLING: cup placed (above 10 counts)
+    SAMPLING --> EMPTY: lifted early
+    SAMPLING --> SAMPLING: 1000 samples, none stable
+    SAMPLING --> RECORDED: 1000 samples, recorded
+    RECORDED --> EMPTY: lifted
+```
+
+### From samples to grams
+```mermaid
+flowchart LR
+    A["1000 samples<br/>(~10 s)"] --> B["last 40%"]
+    B --> C["median"]
+    C --> D["keep within ±3%<br/>of the median"]
+    D --> E["mean"]
+    E --> F["mass_from_counts<br/>(linear interpolation)"]
+    F --> G(["grams"])
+```
+
+### Consumption rule
+```mermaid
+flowchart TD
+    A(["new mass"]) --> B{"new day?"}
+    B -->|yes| C["total = 0<br/>(keep reference)"]
+    B -->|"no, or clock unknown"| D
+    C --> D{"first reading ever?"}
+    D -->|yes| E["reference = mass"]
+    D -->|no| F["diff = reference - mass<br/>reference = mass"]
+    F --> G{"diff ≤ -10 g?"}
+    G -->|"yes: refill"| H["add 0"]
+    G -->|"no: drink or creep"| I["total += diff<br/>clamp at 0"]
+```
+Small gains subtract on purpose, so sensor creep cancels out over time.
+
+### One placement, end to end
+```mermaid
+sequenceDiagram
+    participant Cup
+    participant Loop as Sampling loop
+    participant Cons as consumption
+    participant NVS as storage (NVS)
+    participant Q as Queue
+    participant Net as Network task
+    participant TS as ThingSpeak
+
+    Cup->>Loop: placed
+    loop every 10 ms, 1000 times
+        Loop->>Loop: mcp3008_read(0)
+    end
+    Loop->>Loop: stable_counts, mean, mass
+    Loop->>Cons: consumption_update(mass, day)
+    Loop->>NVS: storage_save
+    Loop->>Q: xQueueSend(reading)
+    Q->>Net: xQueueReceive
+    Net->>TS: HTTPS POST /update
+    TS-->>Net: 200
+    Net->>Net: wait 15 s (rate limit)
+    Cup->>Loop: lifted
+```
+
+### Modules
+The highlighted modules have no hardware dependencies and are unit-tested on the host.
+```mermaid
+flowchart TD
+    main["main.c"] --> mcp3008 & stats & interp["interpolation"] & cons["consumption"] & storage & wifi & time["time_sync"] & ts["thingspeak"]
+    storage --> cons
+    classDef pure fill:#d4edda,stroke:#2e7d32,color:#000
+    class stats,interp,cons pure
+```
+
 ## Code layout
 | File | Purpose |
 |---|---|
