@@ -1,9 +1,6 @@
 #include "consumption.h"
 
-void consumption_init(consumption_t *c)
-{
-    *c = (consumption_t){.day = CONSUMPTION_DAY_UNKNOWN};
-}
+void consumption_init(consumption_t *c) { *c = (consumption_t){.day = CONSUMPTION_DAY_UNKNOWN}; }
 
 int32_t consumption_update(consumption_t *c, uint16_t new_mass, int32_t day)
 {

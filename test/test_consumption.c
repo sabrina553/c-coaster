@@ -29,7 +29,7 @@ static void test_refill_adds_nothing(void)
     consumption_t c;
     consumption_init(&c);
     consumption_update(&c, 500, DAY1);
-    consumption_update(&c, 200, DAY1); // drank 300
+    consumption_update(&c, 200, DAY1);              // drank 300
     assert(consumption_update(&c, 600, DAY1) == 0); // refill
     assert(c.total == 300 && c.last_mass == 600);
     assert(consumption_update(&c, 500, DAY1) == 100); // counted from the refill
@@ -47,10 +47,10 @@ static void test_creep_cancels(void)
     consumption_t c;
     consumption_init(&c);
     consumption_update(&c, 500, DAY1);
-    consumption_update(&c, 400, DAY1); // drink 100
+    consumption_update(&c, 400, DAY1);               // drink 100
     assert(consumption_update(&c, 405, DAY1) == -5); // creep
-    consumption_update(&c, 305, DAY1); // drink 100
-    consumption_update(&c, 200, DAY1); // drink 100, creep gone
+    consumption_update(&c, 305, DAY1);               // drink 100
+    consumption_update(&c, 200, DAY1);               // drink 100, creep gone
     assert(c.total == 300);
 }
 

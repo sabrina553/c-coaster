@@ -23,14 +23,13 @@ bool thingspeak_send(uint16_t counts, uint16_t mass, uint32_t daily_total, time_
 
     char body[192];
     int len = snprintf(body, sizeof body, "api_key=%s&field1=%u&field2=%u&field3=%lu",
-                       CONFIG_COASTER_THINGSPEAK_API_KEY, counts, mass,
-                       (unsigned long)daily_total);
+                       CONFIG_COASTER_THINGSPEAK_API_KEY, counts, mass, (unsigned long)daily_total);
     if (timestamp != 0 && len > 0 && (size_t)len < sizeof body) {
         // created_at keeps the reading's own time if the send is delayed.
         struct tm t;
         gmtime_r(&timestamp, &t);
-        size_t added = strftime(body + len, sizeof body - (size_t)len,
-                                "&created_at=%Y-%m-%dT%H:%M:%SZ", &t);
+        size_t added =
+            strftime(body + len, sizeof body - (size_t)len, "&created_at=%Y-%m-%dT%H:%M:%SZ", &t);
         // Unlike snprintf, strftime returns 0 when it doesn't fit.
         len = added ? len + (int)added : (int)sizeof body;
     }

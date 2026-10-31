@@ -19,6 +19,9 @@ static const char *TAG = "c-coaster";
 // Readings at or below this mean nothing is on the coaster.
 #define PRESENT_THRESHOLD 10
 #define SAMPLE_PERIOD_MS 10
+// stable_counts(): use the last 40% of a batch, keeping readings within 3% of its median.
+#define STABLE_TAIL_PCT 40
+#define STABLE_TOL_PCT 3
 // Once recorded, only a lift matters, so poll more slowly.
 #define RECORDED_POLL_MS 100
 // About 15 minutes of readings at one per placement every ~100 s.
@@ -76,16 +79,16 @@ static void queue_reading(const reading_t *r)
 }
 
 // Turns a full sample buffer into a recorded reading; false if no stable readings.
-static bool record(const uint16_t *samples, uint16_t *scratch, uint16_t *stable,
-                   consumption_t *c)
+static bool record(const uint16_t *samples, uint16_t *scratch, uint16_t *stable, consumption_t *c)
 {
-    size_t n_stable = stable_counts(samples, N_SAMPLES, 40, 3, scratch, stable);
+    size_t n_stable =
+        stable_counts(samples, N_SAMPLES, STABLE_TAIL_PCT, STABLE_TOL_PCT, scratch, stable);
     if (n_stable == 0) {
         ESP_LOGW(TAG, "no stable readings in batch");
         return false;
     }
     uint16_t counts = mean_u16(stable, n_stable);
-    uint16_t mass = voltageToMass(counts);
+    uint16_t mass = mass_from_counts(counts);
 
     bool synced = time_is_synced();
     time_t now = synced ? time(NULL) : 0;
