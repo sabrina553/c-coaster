@@ -30,7 +30,6 @@ void mcp3008_init(void)
 
 static void clock_pulse(void)
 {
-    // clock goes high and then low.
     gpio_set_level(CLK, 1);
     gpio_set_level(CLK, 0);
 }
@@ -52,7 +51,8 @@ static void send_bits(uint8_t value, int n)
     }
 }
 
-// 130 ksps is recommended for VDD >= 3.3V
+// No delays between edges: GPIO calls are far slower than the MCP3008's maximum
+// clock (1.35 MHz at 2.7 V, datasheet section 1.0, electrical characteristics).
 uint16_t mcp3008_read(uint8_t channel)
 {
     // Only D2..D0 hold the channel; 8+ would corrupt the start/SGL bits (datasheet table 5-2).

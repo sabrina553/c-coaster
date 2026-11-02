@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <time.h>
 
-// Posts one update using the original SmartCoaster channel layout:
+// Posts one update. The existing channel's charts expect this field layout:
 // field1 = ADC counts, field2 = mass (g), field3 = daily total (g).
 // timestamp 0 means "clock not synced": ThingSpeak then uses its own receive time.
 // Returns false if rate-limited, offline or the server rejected it.
