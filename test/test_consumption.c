@@ -41,7 +41,7 @@ static void test_refill_adds_nothing(void)
     assert(consumption_update(&c, 510 + REFILL_THRESHOLD_G - 1, DAY1) == -(REFILL_THRESHOLD_G - 1));
 }
 
-// The worked example from Docs/Placement Readings: creep up then back cancels out.
+// Creep up then back down cancels out, so only real drinks remain in the total.
 static void test_creep_cancels(void)
 {
     consumption_t c;

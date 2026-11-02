@@ -8,4 +8,4 @@ secrets.h
 sdkconfig.secrets
 .env
 build-host/
-.claude/settings.json
+.claude

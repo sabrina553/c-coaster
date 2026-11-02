@@ -4,9 +4,7 @@
 uint16_t mass_from_counts(uint16_t counts)
 {
     // Calibration for this board (2026-10-31): mean ADC counts for known masses.
-    // Counts fall as mass falls. Replaces the original SmartCoaster's 19-point table
-    // (https://github.com/sabrina553/SmartCoaster).
-    // static const: one copy in flash, not rebuilt on the stack each call.
+    // Counts fall as mass falls.
     static const uint16_t masses[] = {1000, 900, 800, 700, 600, 500, 400, 300, 200, 146, 0};
     static const uint16_t table[] = {966, 958, 950, 934, 913, 812, 572, 284, 96, 33, 0};
     _Static_assert(sizeof masses == sizeof table, "calibration tables differ in length");

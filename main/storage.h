@@ -2,8 +2,7 @@
 #include "consumption.h"
 #include <stdbool.h>
 
-// Keeps the consumption state in NVS (flash key-value store) across reboots,
-// like the original's etc/water_consumption_data file.
+// Keeps the consumption state in NVS (flash key-value store) across reboots.
 // https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/api-reference/storage/nvs_flash.html
 
 // Initialises NVS. Call before wifi_init(), which also stores data in NVS.
