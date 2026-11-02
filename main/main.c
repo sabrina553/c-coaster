@@ -39,8 +39,8 @@ typedef struct {
     time_t timestamp; // 0 if the clock wasn't synced
 } reading_t;
 
-// One reading per placement, like the original SmartCoaster: sample until a stable
-// mass is recorded, then wait for the cup to be lifted before sampling again.
+// One reading per placement: a cup sits still for minutes, so repeat readings would
+// only add sensor noise to the daily total.
 typedef enum {
     COASTER_EMPTY,    // nothing on the coaster
     COASTER_SAMPLING, // filling the sample buffer
